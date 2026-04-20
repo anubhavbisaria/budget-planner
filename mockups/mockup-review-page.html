@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Budget Review — Share Page Mockup</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Page shell (dark app chrome) ── */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+    font-size: 14px;
+    background: #0f1117;
+    color: #e8eaf0;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── Top nav (app chrome, hidden on print) ── */
+  .app-nav {
+    background: #16181f;
+    border-bottom: 1px solid #252830;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .back-btn {
+    background: none;
+    border: 1px solid #252830;
+    border-radius: 6px;
+    color: #8b949e;
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .back-btn:hover { border-color: #00c896; color: #00c896; }
+  .app-nav-title { font-size: 13px; font-weight: 600; color: #8b949e; flex: 1; }
+  .print-btn {
+    background: #00c896;
+    color: #0f1117;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .print-btn:hover { background: #00b080; }
+
+  /* ── Review card (the shareable part) ── */
+  .review-wrapper {
+    max-width: 390px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  .review-card {
+    background: #ffffff;
+    color: #1a1a2e;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  }
+
+  /* ── Card header ── */
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .brand { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #9ca3af; }
+  .gen-date { font-size: 11px; color: #9ca3af; }
+  .scenario-name {
+    padding: 14px 20px 10px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: #1a1a2e;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .scenario-name span { font-size: 11px; font-weight: 500; color: #9ca3af; text-transform: uppercase; letter-spacing: .08em; margin-right: 6px; }
+
+  /* ── Stat boxes ── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .stat-box {
+    padding: 14px 14px 12px;
+    border-right: 1px solid #f0f0f0;
+  }
+  .stat-box:last-child { border-right: none; }
+  .stat-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: #1a1a2e;
+  }
+  .stat-box.surplus .stat-value { color: #1a7a3a; }
+  .stat-box.deficit .stat-value { color: #c62828; }
+
+  /* ── Category rows ── */
+  .categories-section { padding: 4px 0; }
+  .cat-row {
+    padding: 10px 20px;
+    border-bottom: 1px solid #f8f8f8;
+  }
+  .cat-row:last-child { border-bottom: none; }
+  .cat-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+  }
+  .cat-icon-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .cat-name { flex: 1; font-size: 13px; font-weight: 600; color: #374151; }
+  .cat-amount { font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .cat-progress-wrap {
+    height: 3px;
+    background: #f3f4f6;
+    border-radius: 2px;
+    margin-left: 38px;
+  }
+  .cat-progress-fill { height: 100%; border-radius: 2px; }
+
+  /* ── Donut section ── */
+  .donut-section {
+    padding: 14px 20px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .donut-wrap { flex-shrink: 0; position: relative; width: 100px; height: 100px; }
+  .donut-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .donut-ring { fill: none; stroke-width: 16; }
+  .donut-bg { stroke: #f3f4f6; }
+  .donut-center-label {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    text-align: center;
+  }
+  .donut-pct { font-size: 16px; font-weight: 800; color: #1a1a2e; }
+  .donut-sub { font-size: 8px; color: #9ca3af; text-transform: uppercase; letter-spacing: .06em; }
+  .donut-legend { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #6b7280; }
+  .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Footer ── */
+  .card-footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 10px;
+    color: #9ca3af;
+    letter-spacing: .04em;
+  }
+
+  /* ── Bottom tab bar (mobile chrome mockup) ── */
+  .bottom-tabs {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: #16181f;
+    border-top: 1px solid #252830;
+    display: flex;
+    align-items: stretch;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 10px;
+    color: #4a5060;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+  .tab.active { color: #00c896; border-top: 2px solid #00c896; }
+  .tab-icon { font-size: 18px; }
+
+  /* ── Print styles ── */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .app-nav, .bottom-tabs { display: none !important; }
+    .review-wrapper { margin: 0; padding: 0; max-width: 100%; }
+    .review-card { box-shadow: none; border-radius: 0; }
+    @page { margin: 0.5cm; }
+  }
+</style>
+</head>
+<body>
+
+<!-- App chrome (hidden on print) -->
+<div class="app-nav">
+  <button class="back-btn">← Back</button>
+  <span class="app-nav-title">Review · Current</span>
+  <button class="print-btn" onclick="window.print()">🖨️ Save PDF</button>
+</div>
+
+<!-- THE SHAREABLE CARD -->
+<div class="review-wrapper">
+  <div class="review-card">
+
+    <!-- Header -->
+    <div class="card-header">
+      <div class="brand">BudgetWise</div>
+      <div class="gen-date">April 2026</div>
+    </div>
+    <div class="scenario-name"><span>Scenario</span>Current</div>
+
+    <!-- Stat boxes -->
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-label">Income</div>
+        <div class="stat-value">$5,000</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Expenses</div>
+        <div class="stat-value">$4,280</div>
+      </div>
+      <div class="stat-box surplus">
+        <div class="stat-label">Surplus</div>
+        <div class="stat-value">+$720</div>
+      </div>
+    </div>
+
+    <!-- Category breakdown -->
+    <div class="categories-section">
+
+      <div class="cat-row">
+        <div class="cat-main">
+          <div class="cat-icon-badge" style="background:#eef1fd">🏠</div>
+          <span class="cat-name">Housing</span>
+          <span class="cat-amount">$1,500</span>
+        </div>
+        <div class="cat-progress-wrap"><div class="cat-progress-fill" style="width:30%;background:#4f74e8"></div></div>
+      </div>
+
+      <div class="cat-row">
+        <div class="cat-main">
+          <div class="cat-icon-badge" style="background:#e6f6fd">⚡</div>
+          <span class="cat-name">Utilities</span>
+          <span class="cat-amount">$210</span>
+        </div>
+        <div class="cat-progress-wrap"><div class="cat-progress-fill" style="width:4%;background:#00a3e0"></div></div>
+      </div>
+
+      <div class="cat-row">
+        <div class="cat-main">
+          <div class="cat-icon-badge" style="background:#fff8e6">👦</div>
+          <span class="cat-name">Child Expenses</span>
+          <span class="cat-amount">$800</span>
+        </div>
+        <div class="cat-progress-wrap"><div class="cat-progress-fill" style="width:16%;background:#f5a623"></div></div>
+      </div>
+
+      <div class="cat-row">
+        <div class="cat-main">
+          <div class="cat-icon-badge" style="background:#fff0f0">🚗</div>
+          <span class="cat-name">Transportation</span>
+          <span class="cat-amount">$480</span>
+        </div>
+        <div class="cat-progress-wrap"><div class="cat-progress-fill" style="width:10%;background:#ff5a5f"></div></div>
+      </div>
+
+      <div class="cat-row">
+        <div class="cat-main">
+          <div class="cat-icon-badge" style="background:#f5eeff">🛡️</div>
+          <span class="cat-name">Insurance</span>
+          <span class="cat-amount">$260</span>
+        </div>
+        <div class="cat-progress-wrap"><div class="cat-progress-fill" style="width:5%;background:#9b59b6"></div></div>
+      </div>
+
+      <div class="cat-row">
+        <div class="cat-main">
+          <div class="cat-icon-badge" style="background:#e6faf3">💵</div>
+          <span class="cat-name">Savings &amp; Investments</span>
+          <span class="cat-amount">$240</span>
+        </div>
+        <div class="cat-progress-wrap"><div class="cat-progress-fill" style="width:5%;background:#00c896"></div></div>
+      </div>
+
+      <div class="cat-row">
+        <div class="cat-main">
+          <div class="cat-icon-badge" style="background:#fff0f4">🎬</div>
+          <span class="cat-name">Entertainment &amp; Dining</span>
+          <span class="cat-amount">$200</span>
+        </div>
+        <div class="cat-progress-wrap"><div class="cat-progress-fill" style="width:4%;background:#ef476f"></div></div>
+      </div>
+
+      <div class="cat-row">
+        <div class="cat-main">
+          <div class="cat-icon-badge" style="background:#e6f5e6">📱</div>
+          <span class="cat-name">Phone &amp; Internet</span>
+          <span class="cat-amount">$130</span>
+        </div>
+        <div class="cat-progress-wrap"><div class="cat-progress-fill" style="width:3%;background:#2ea043"></div></div>
+      </div>
+
+      <div class="cat-row">
+        <div class="cat-main">
+          <div class="cat-icon-badge" style="background:#fffbea">🛒</div>
+          <span class="cat-name">Groceries &amp; Food</span>
+          <span class="cat-amount">$260</span>
+        </div>
+        <div class="cat-progress-wrap"><div class="cat-progress-fill" style="width:5%;background:#e3b341"></div></div>
+      </div>
+
+    </div>
+
+    <!-- Compact donut -->
+    <div class="donut-section">
+      <div class="donut-wrap">
+        <svg class="donut-svg" viewBox="0 0 100 100">
+          <circle class="donut-ring donut-bg" cx="50" cy="50" r="38" stroke-dasharray="239 239" />
+          <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#4f74e8" stroke-dasharray="71 239" stroke-dashoffset="0" />
+          <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#f5a623" stroke-dasharray="45 239" stroke-dashoffset="-71" />
+          <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#ff5a5f" stroke-dasharray="27 239" stroke-dashoffset="-116" />
+          <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#9b59b6" stroke-dasharray="15 239" stroke-dashoffset="-143" />
+          <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#00c896" stroke-dasharray="14 239" stroke-dashoffset="-158" />
+          <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#ef476f" stroke-dasharray="11 239" stroke-dashoffset="-172" />
+          <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#00a3e0" stroke-dasharray="12 239" stroke-dashoffset="-183" />
+          <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#e3b341" stroke-dasharray="15 239" stroke-dashoffset="-195" />
+          <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#2ea043" stroke-dasharray="7 239" stroke-dashoffset="-210" />
+        </svg>
+        <div class="donut-center-label">
+          <div class="donut-pct">86%</div>
+          <div class="donut-sub">of income</div>
+        </div>
+      </div>
+      <div class="donut-legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#4f74e8"></span>Housing 35%</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#f5a623"></span>Children 19%</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#ff5a5f"></span>Transport 11%</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#9b59b6"></span>Insurance 6%</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#00c896"></span>Savings 6%</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#ef476f"></span>Dining 5%</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#00a3e0"></span>Utilities 5%</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#e3b341"></span>Groceries 6%</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer">Generated with BudgetWise &nbsp;·&nbsp; Local Budget Planner</div>
+
+  </div><!-- .review-card -->
+</div><!-- .review-wrapper -->
+
+<!-- Mobile bottom tab bar (chrome mockup) -->
+<div class="bottom-tabs">
+  <button class="tab"><span class="tab-icon">☰</span>Scenarios</button>
+  <button class="tab"><span class="tab-icon">📊</span>Detail</button>
+  <button class="tab"><span class="tab-icon">⇄</span>Compare</button>
+  <button class="tab active"><span class="tab-icon">📋</span>Review</button>
+</div>
+
+</body>
+</html>
