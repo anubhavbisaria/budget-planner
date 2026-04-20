@@ -1,0 +1,3 @@
+backend/budget.db
+__pycache__/
+*.pyc
