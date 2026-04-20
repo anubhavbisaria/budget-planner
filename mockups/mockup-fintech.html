@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Budget Planner — Fintech</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; background: #0f1117; color: #e8eaf0; display: flex; height: 100vh; overflow: hidden; }
+
+  /* Sidebar */
+  #sidebar { width: 248px; background: #16181f; display: flex; flex-direction: column; border-right: 1px solid #252830; flex-shrink: 0; }
+  .logo { padding: 20px 16px 16px; border-bottom: 1px solid #252830; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
+  .logo-icon { width: 30px; height: 30px; background: linear-gradient(135deg, #00c896, #00a3e0); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .logo-name { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -.02em; }
+  .logo-sub { font-size: 10px; color: #666; letter-spacing: .06em; text-transform: uppercase; margin-left: 40px; }
+
+  .nav-section { padding: 12px 0 4px; }
+  .nav-section-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #555; padding: 0 16px 6px; }
+  .nav-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; cursor: pointer; border: none; background: none; color: #aaa; font-family: inherit; font-size: 13px; width: 100%; text-align: left; border-left: 2px solid transparent; transition: all .12s; }
+  .nav-item:hover { background: #1e2028; color: #e8eaf0; }
+  .nav-item.active { background: #1e2028; color: #00c896; border-left-color: #00c896; }
+  .nav-item.compare-item { color: #00a3e0; }
+  .nav-item.compare-item.active { color: #00a3e0; border-left-color: #00a3e0; }
+  .nav-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+  .badge-pos { background: #0a2e20; color: #00c896; }
+  .badge-neg { background: #2e0a0a; color: #ff4d4d; }
+  .sidebar-bottom { margin-top: auto; padding: 12px; border-top: 1px solid #252830; }
+  .add-scenario-btn { width: 100%; padding: 9px; background: #252830; color: #aaa; border: 1px dashed #333; border-radius: 8px; font-family: inherit; font-size: 12px; cursor: pointer; transition: all .12s; }
+  .add-scenario-btn:hover { background: #1e2028; color: #00c896; border-color: #00c896; }
+
+  /* Main */
+  #main { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+  /* Scenario header */
+  .scenario-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .scenario-title { font-size: 22px; font-weight: 800; letter-spacing: -.02em; border: none; background: transparent; outline: none; color: #fff; flex: 1; font-family: inherit; }
+  .scenario-title:focus { border-bottom: 1px solid #00c896; }
+  .del-scenario { padding: 6px 12px; background: none; border: 1px solid #333; border-radius: 6px; color: #555; font-family: inherit; font-size: 11px; cursor: pointer; }
+  .del-scenario:hover { border-color: #ff4d4d; color: #ff4d4d; }
+
+  /* Stats strip */
+  .stats-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .stat-card { background: #16181f; border: 1px solid #252830; border-radius: 12px; padding: 16px 18px; }
+  .stat-card.surplus-card { border-color: #0a3a28; background: linear-gradient(135deg, #0a2e20, #0d3326); }
+  .stat-card.deficit-card { border-color: #3a0a0a; background: linear-gradient(135deg, #2e0a0a, #3a1010); }
+  .stat-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #555; margin-bottom: 8px; }
+  .stat-val { font-size: 24px; font-weight: 800; letter-spacing: -.02em; color: #e8eaf0; }
+  .stat-card.surplus-card .stat-val { color: #00c896; }
+  .stat-card.deficit-card .stat-val { color: #ff4d4d; }
+  .stat-val input { font-size: 24px; font-weight: 800; letter-spacing: -.02em; color: #e8eaf0; border: none; background: transparent; outline: none; width: 150px; font-family: inherit; }
+
+  /* Progress overview (donut placeholder) */
+  .overview-row { display: flex; gap: 14px; margin-bottom: 24px; }
+  .donut-card { background: #16181f; border: 1px solid #252830; border-radius: 12px; padding: 18px; width: 220px; flex-shrink: 0; }
+  .donut-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #555; margin-bottom: 14px; }
+  .donut-placeholder { width: 120px; height: 120px; margin: 0 auto 12px; position: relative; }
+  .donut-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .donut-ring { fill: none; stroke-width: 18; }
+  .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .donut-pct { font-size: 18px; font-weight: 800; color: #fff; }
+  .donut-sub { font-size: 9px; color: #555; }
+  .donut-legend { display: flex; flex-direction: column; gap: 5px; }
+  .legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+  .legend-name { flex: 1; color: #888; display: flex; align-items: center; }
+  .legend-pct { color: #aaa; font-weight: 600; }
+
+  .cats-panel { flex: 1; }
+
+  /* Category rows (Monarch-style) */
+  .cat-section { background: #16181f; border: 1px solid #252830; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .cat-sec-header { display: flex; align-items: center; padding: 12px 16px; gap: 12px; border-bottom: 1px solid #252830; }
+  .cat-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .cat-sec-name { font-size: 13px; font-weight: 700; color: #e8eaf0; flex: 1; }
+  .cat-sec-total { font-size: 14px; font-weight: 800; color: #fff; }
+  .progress-bar-wrap { height: 3px; background: #252830; margin: 0 16px 12px; border-radius: 2px; }
+  .progress-bar-fill { height: 100%; border-radius: 2px; }
+
+  .expense-row { display: flex; align-items: center; padding: 8px 16px; gap: 12px; border-top: 1px solid #1e2028; }
+  .expense-row:hover { background: #1a1c24; }
+  .expense-name { flex: 1; }
+  .expense-name input { background: transparent; border: none; outline: none; font-family: inherit; font-size: 13px; color: #ccc; width: 100%; }
+  .expense-name input:focus { color: #00c896; }
+  .expense-amount input { background: transparent; border: none; outline: none; font-family: inherit; font-size: 13px; font-weight: 700; color: #e8eaf0; text-align: right; width: 80px; }
+  .expense-amount input:focus { color: #00c896; }
+  .del-exp { background: none; border: none; color: #444; cursor: pointer; font-size: 15px; padding: 0 0 0 6px; }
+  .del-exp:hover { color: #ff4d4d; }
+  .add-exp-row { padding: 8px 16px; border-top: 1px solid #1e2028; }
+  .add-exp-btn { background: none; border: none; font-family: inherit; font-size: 11px; color: #555; cursor: pointer; }
+  .add-exp-btn:hover { color: #00c896; }
+
+  /* Compare */
+  #compare-view { display: none; }
+  .compare-h { font-size: 20px; font-weight: 800; margin-bottom: 20px; color: #fff; }
+  .compare-table { width: 100%; border-collapse: collapse; }
+  .compare-table th { background: #16181f; color: #555; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; padding: 10px 14px; text-align: right; border-bottom: 1px solid #252830; }
+  .compare-table th:first-child { text-align: left; }
+  .compare-table td { padding: 8px 14px; text-align: right; font-size: 13px; border-bottom: 1px solid #1e2028; background: #16181f; color: #aaa; }
+  .compare-table td:first-child { text-align: left; }
+  .compare-table .cat-hd td { background: #0f1117; font-size: 10px; font-weight: 700; text-transform: uppercase; color: #444; letter-spacing: .08em; padding: 6px 14px; }
+  .compare-table .totals-r td { background: #1a1c24; font-weight: 700; color: #e8eaf0; border-top: 1px solid #333; font-size: 14px; }
+  .compare-table .income-r td { background: #16181f; font-weight: 600; color: #777; }
+  .compare-table .surplus-r td { font-size: 16px; font-weight: 800; border-top: 1px solid #333; }
+  .compare-table .surplus-r .pos { color: #00c896; background: #0a2e20; }
+  .compare-table .surplus-r .neg { color: #ff4d4d; background: #2e0a0a; }
+
+  /* category color variables */
+  .ic-housing   { background: #1a1f3a; } .ic-housing span   { filter: hue-rotate(220deg); }
+  .ic-util      { background: #1a2e3a; }
+  .ic-phone     { background: #1a3a2e; }
+  .ic-child     { background: #3a2e1a; }
+  .ic-transport { background: #3a1a1a; }
+  .ic-insurance { background: #2e1a3a; }
+  .ic-subs      { background: #3a1f1a; }
+  .ic-savings   { background: #1a3a28; }
+  .ic-ent       { background: #3a1a28; }
+
+  .bar-housing   { background: #4f74e8; }
+  .bar-util      { background: #00a3e0; }
+  .bar-phone     { background: #00c896; }
+  .bar-child     { background: #f5a623; }
+  .bar-transport { background: #ff5a5f; }
+  .bar-insurance { background: #9b59b6; }
+  .bar-subs      { background: #ff7043; }
+  .bar-savings   { background: #00c896; }
+  .bar-ent       { background: #ef476f; }
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="logo">
+    <div class="logo-row">
+      <div class="logo-icon">💰</div>
+      <span class="logo-name">BudgetWise</span>
+    </div>
+    <span class="logo-sub">Monthly Planner</span>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Scenarios</div>
+    <button class="nav-item active" onclick="show('current')">Current <span class="nav-badge badge-pos">+$720</span></button>
+    <button class="nav-item" onclick="show('move')">If I Move <span class="nav-badge badge-neg">−$280</span></button>
+    <button class="nav-item compare-item" onclick="show('compare')">⇄ Compare All</button>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="add-scenario-btn">+ New Scenario</button>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- CURRENT -->
+  <div id="view-current">
+    <div class="scenario-header">
+      <input class="scenario-title" value="Current" />
+      <button class="del-scenario">Delete</button>
+    </div>
+
+    <div class="stats-strip">
+      <div class="stat-card">
+        <div class="stat-label">Monthly Income</div>
+        <div class="stat-val"><input type="number" value="5000" /></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Expenses</div>
+        <div class="stat-val">$4,280</div>
+      </div>
+      <div class="stat-card surplus-card">
+        <div class="stat-label">Surplus</div>
+        <div class="stat-val">+$720</div>
+      </div>
+    </div>
+
+    <div class="overview-row">
+      <!-- Donut chart (CSS/SVG only) -->
+      <div class="donut-card">
+        <div class="donut-title">Spending Mix</div>
+        <div class="donut-placeholder">
+          <svg class="donut-svg" viewBox="0 0 100 100">
+            <!-- total circle = 283 circumference for r=45 -->
+            <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#252830" stroke-dasharray="239 239" />
+            <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#4f74e8" stroke-dasharray="84 239" stroke-dashoffset="0" />
+            <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#f5a623" stroke-dasharray="45 239" stroke-dashoffset="-84" />
+            <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#ff5a5f" stroke-dasharray="27 239" stroke-dashoffset="-129" />
+            <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#00a3e0" stroke-dasharray="12 239" stroke-dashoffset="-156" />
+            <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#9b59b6" stroke-dasharray="15 239" stroke-dashoffset="-168" />
+            <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#00c896" stroke-dasharray="13 239" stroke-dashoffset="-183" />
+            <circle class="donut-ring" cx="50" cy="50" r="38" stroke="#ef476f" stroke-dasharray="11 239" stroke-dashoffset="-196" />
+          </svg>
+          <div class="donut-center">
+            <div class="donut-pct">86%</div>
+            <div class="donut-sub">of income</div>
+          </div>
+        </div>
+        <div class="donut-legend">
+          <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#4f74e8"></span>Housing</span><span class="legend-pct">35%</span></div>
+          <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#f5a623"></span>Children</span><span class="legend-pct">19%</span></div>
+          <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#ff5a5f"></span>Transport</span><span class="legend-pct">11%</span></div>
+          <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#9b59b6"></span>Insurance</span><span class="legend-pct">6%</span></div>
+          <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#00c896"></span>Savings</span><span class="legend-pct">6%</span></div>
+        </div>
+      </div>
+
+      <!-- Category list -->
+      <div class="cats-panel">
+        <div class="cat-section">
+          <div class="cat-sec-header">
+            <div class="cat-icon ic-housing">🏠</div>
+            <span class="cat-sec-name">Housing</span>
+            <span class="cat-sec-total">$1,500</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill bar-housing" style="width:100%"></div></div>
+          <div class="expense-row"><div class="expense-name"><input value="Rent / Mortgage" /></div><div class="expense-amount"><input type="number" value="1500" /></div><button class="del-exp">×</button></div>
+          <div class="add-exp-row"><button class="add-exp-btn">+ add item</button></div>
+        </div>
+
+        <div class="cat-section">
+          <div class="cat-sec-header">
+            <div class="cat-icon ic-util">⚡</div>
+            <span class="cat-sec-name">Utilities</span>
+            <span class="cat-sec-total">$210</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill bar-util" style="width:14%"></div></div>
+          <div class="expense-row"><div class="expense-name"><input value="Electric" /></div><div class="expense-amount"><input type="number" value="90" /></div><button class="del-exp">×</button></div>
+          <div class="expense-row"><div class="expense-name"><input value="Gas" /></div><div class="expense-amount"><input type="number" value="60" /></div><button class="del-exp">×</button></div>
+          <div class="expense-row"><div class="expense-name"><input value="Water" /></div><div class="expense-amount"><input type="number" value="60" /></div><button class="del-exp">×</button></div>
+          <div class="add-exp-row"><button class="add-exp-btn">+ add item</button></div>
+        </div>
+
+        <div class="cat-section">
+          <div class="cat-sec-header">
+            <div class="cat-icon ic-child">👦</div>
+            <span class="cat-sec-name">Child Expenses</span>
+            <span class="cat-sec-total">$800</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill bar-child" style="width:53%"></div></div>
+          <div class="expense-row"><div class="expense-name"><input value="Childcare" /></div><div class="expense-amount"><input type="number" value="500" /></div><button class="del-exp">×</button></div>
+          <div class="expense-row"><div class="expense-name"><input value="School" /></div><div class="expense-amount"><input type="number" value="200" /></div><button class="del-exp">×</button></div>
+          <div class="expense-row"><div class="expense-name"><input value="Activities" /></div><div class="expense-amount"><input type="number" value="100" /></div><button class="del-exp">×</button></div>
+          <div class="add-exp-row"><button class="add-exp-btn">+ add item</button></div>
+        </div>
+
+        <div class="cat-section">
+          <div class="cat-sec-header">
+            <div class="cat-icon ic-transport">🚗</div>
+            <span class="cat-sec-name">Transportation</span>
+            <span class="cat-sec-total">$480</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill bar-transport" style="width:32%"></div></div>
+          <div class="expense-row"><div class="expense-name"><input value="Car payment" /></div><div class="expense-amount"><input type="number" value="300" /></div><button class="del-exp">×</button></div>
+          <div class="expense-row"><div class="expense-name"><input value="Gas / Fuel" /></div><div class="expense-amount"><input type="number" value="120" /></div><button class="del-exp">×</button></div>
+          <div class="expense-row"><div class="expense-name"><input value="Car insurance" /></div><div class="expense-amount"><input type="number" value="60" /></div><button class="del-exp">×</button></div>
+          <div class="add-exp-row"><button class="add-exp-btn">+ add item</button></div>
+        </div>
+
+        <div class="cat-section">
+          <div class="cat-sec-header">
+            <div class="cat-icon ic-savings">💵</div>
+            <span class="cat-sec-name">Savings &amp; Investments</span>
+            <span class="cat-sec-total">$240</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill bar-savings" style="width:16%"></div></div>
+          <div class="expense-row"><div class="expense-name"><input value="Savings" /></div><div class="expense-amount"><input type="number" value="150" /></div><button class="del-exp">×</button></div>
+          <div class="expense-row"><div class="expense-name"><input value="Investments" /></div><div class="expense-amount"><input type="number" value="90" /></div><button class="del-exp">×</button></div>
+          <div class="add-exp-row"><button class="add-exp-btn">+ add item</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IF I MOVE -->
+  <div id="view-move" style="display:none">
+    <div class="scenario-header">
+      <input class="scenario-title" value="If I Move" />
+      <button class="del-scenario">Delete</button>
+    </div>
+    <div class="stats-strip">
+      <div class="stat-card"><div class="stat-label">Monthly Income</div><div class="stat-val"><input type="number" value="5000" /></div></div>
+      <div class="stat-card"><div class="stat-label">Total Expenses</div><div class="stat-val">$5,280</div></div>
+      <div class="stat-card deficit-card"><div class="stat-label">Deficit</div><div class="stat-val">−$280</div></div>
+    </div>
+    <div class="overview-row">
+      <div class="cats-panel">
+        <div class="cat-section">
+          <div class="cat-sec-header"><div class="cat-icon ic-housing">🏠</div><span class="cat-sec-name">Housing</span><span class="cat-sec-total">$2,500</span></div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill bar-housing" style="width:100%"></div></div>
+          <div class="expense-row"><div class="expense-name"><input value="Rent / Mortgage" /></div><div class="expense-amount"><input type="number" value="2500" /></div><button class="del-exp">×</button></div>
+          <div class="add-exp-row"><button class="add-exp-btn">+ add item</button></div>
+        </div>
+        <div class="cat-section">
+          <div class="cat-sec-header"><div class="cat-icon ic-child">👦</div><span class="cat-sec-name">Child Expenses</span><span class="cat-sec-total">$800</span></div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill bar-child" style="width:32%"></div></div>
+          <div class="expense-row"><div class="expense-name"><input value="Childcare" /></div><div class="expense-amount"><input type="number" value="500" /></div><button class="del-exp">×</button></div>
+          <div class="expense-row"><div class="expense-name"><input value="School" /></div><div class="expense-amount"><input type="number" value="200" /></div><button class="del-exp">×</button></div>
+          <div class="expense-row"><div class="expense-name"><input value="Activities" /></div><div class="expense-amount"><input type="number" value="100" /></div><button class="del-exp">×</button></div>
+          <div class="add-exp-row"><button class="add-exp-btn">+ add item</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE -->
+  <div id="view-compare" style="display:none">
+    <div class="compare-h">Scenario Comparison</div>
+    <table class="compare-table">
+      <thead><tr><th>Category / Item</th><th>Current</th><th>If I Move</th></tr></thead>
+      <tbody>
+        <tr class="cat-hd"><td colspan="3">🏠 Housing</td></tr>
+        <tr><td>Rent / Mortgage</td><td>$1,500</td><td>$2,500</td></tr>
+        <tr class="cat-hd"><td colspan="3">⚡ Utilities</td></tr>
+        <tr><td>Electric + Gas + Water</td><td>$210</td><td>$250</td></tr>
+        <tr class="cat-hd"><td colspan="3">👦 Child Expenses</td></tr>
+        <tr><td>Childcare</td><td>$500</td><td>$500</td></tr>
+        <tr><td>School + Activities</td><td>$300</td><td>$300</td></tr>
+        <tr class="cat-hd"><td colspan="3">🚗 Transportation</td></tr>
+        <tr><td>Car + Fuel + Insurance</td><td>$480</td><td>$480</td></tr>
+        <tr class="cat-hd"><td colspan="3">🛡️ Insurance</td></tr>
+        <tr><td>Health + Dental + Home</td><td>$260</td><td>—</td></tr>
+        <tr class="cat-hd"><td colspan="3">💵 Savings &amp; Investments</td></tr>
+        <tr><td>Savings + Investments</td><td>$240</td><td>$240</td></tr>
+        <tr class="totals-r"><td>Total Expenses</td><td>$4,280</td><td>$5,280</td></tr>
+        <tr class="income-r"><td>Income</td><td>$5,000</td><td>$5,000</td></tr>
+        <tr class="surplus-r"><td style="padding:10px 14px;color:#777;font-weight:700">Surplus / Deficit</td><td class="pos">+$720</td><td class="neg">−$280</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+  function show(v) {
+    ['current','move','compare'].forEach(id => document.getElementById('view-'+id).style.display='none');
+    document.getElementById('view-'+v).style.display='block';
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+</script>
+</body>
+</html>
