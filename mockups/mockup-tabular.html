@@ -2,258 +2,207 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Budget Planner — Tabular</title>
+<title>Budget Planner — Tabular (Dark)</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: "Menlo", "Consolas", "Courier New", monospace; font-size: 13px; background: #f0f0f0; color: #111; display: flex; height: 100vh; overflow: hidden; }
+  body { font-family: "Menlo", "Consolas", "Courier New", monospace; font-size: 13px; background: #0d0d0d; color: #d0d0d0; display: flex; height: 100vh; overflow: hidden; }
 
   /* Sidebar */
-  #sidebar { width: 200px; background: #1a1a1a; color: #eee; display: flex; flex-direction: column; flex-shrink: 0; border-right: 2px solid #333; }
-  #sidebar h1 { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #888; padding: 14px 12px 10px; border-bottom: 1px solid #333; }
-  .s-btn { display: block; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; color: #ccc; cursor: pointer; font-family: inherit; font-size: 12px; border-left: 2px solid transparent; }
-  .s-btn:hover { background: #2a2a2a; color: #fff; }
-  .s-btn.active { background: #2a2a2a; border-left-color: #4caf50; color: #fff; }
-  .s-btn.compare { color: #64b5f6; }
-  .s-badge { float: right; font-size: 10px; padding: 1px 5px; border-radius: 2px; background: #1e3a1e; color: #4caf50; }
-  .s-badge.neg { background: #3a1e1e; color: #ef5350; }
-  .s-new { margin: 8px; padding: 6px; background: none; border: 1px dashed #444; color: #666; font-family: inherit; font-size: 11px; cursor: pointer; width: calc(100% - 16px); }
-  .s-new:hover { border-color: #666; color: #999; }
+  #sidebar { width: 200px; background: #111; display: flex; flex-direction: column; border-right: 1px solid #222; flex-shrink: 0; }
+  #sidebar h1 { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #555; padding: 14px 12px 10px; border-bottom: 1px solid #222; }
+  .s-btn { display: block; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; color: #888; cursor: pointer; font-family: inherit; font-size: 12px; border-left: 2px solid transparent; transition: all .12s; }
+  .s-btn:hover { background: #1a1a1a; color: #ddd; }
+  .s-btn.active { background: #1a1a1a; border-left-color: #4caf50; color: #eee; }
+  .s-btn.compare { color: #5b9cf6; }
+  .s-badge { float: right; font-size: 10px; padding: 1px 5px; border-radius: 2px; }
+  .s-badge.pos { background: #0a2e0a; color: #4caf50; }
+  .s-badge.neg { background: #2e0a0a; color: #ef5350; }
+  .s-new { margin: 8px; padding: 6px; background: none; border: 1px dashed #2a2a2a; color: #444; font-family: inherit; font-size: 11px; cursor: pointer; width: calc(100% - 16px); }
+  .s-new:hover { border-color: #444; color: #666; }
 
   /* Main */
-  #main { flex: 1; overflow-y: auto; background: #f0f0f0; }
+  #main { flex: 1; overflow-y: auto; }
 
   /* Toolbar */
-  .toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: #fff; border-bottom: 1px solid #ddd; }
-  .toolbar input.title { font-family: inherit; font-size: 14px; font-weight: 700; border: none; background: transparent; outline: none; flex: 1; }
+  .toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: #111; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 10; }
+  .toolbar input.title { font-family: inherit; font-size: 14px; font-weight: 700; border: none; background: transparent; outline: none; flex: 1; color: #eee; }
   .toolbar input.title:focus { border-bottom: 1px solid #4caf50; }
-  .toolbar .tb-btn { padding: 4px 10px; border: 1px solid #ddd; background: #fafafa; font-family: inherit; font-size: 11px; cursor: pointer; }
-  .toolbar .tb-btn:hover { background: #f0f0f0; }
-  .toolbar .tb-btn.danger:hover { border-color: #ef5350; color: #ef5350; }
+  .tb-btn { padding: 4px 10px; border: 1px solid #2a2a2a; background: #1a1a1a; color: #666; font-family: inherit; font-size: 11px; cursor: pointer; }
+  .tb-btn:hover { border-color: #ef5350; color: #ef5350; }
 
-  /* Income + surplus row */
-  .summary-row { display: flex; align-items: stretch; border-bottom: 2px solid #333; background: #fff; }
-  .summary-cell { padding: 10px 16px; border-right: 1px solid #ddd; display: flex; flex-direction: column; gap: 2px; }
-  .summary-cell:last-child { border-right: none; }
-  .summary-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #888; }
-  .summary-val { font-size: 18px; font-weight: 700; font-family: "Menlo", monospace; }
-  .surplus-cell { background: #e8f5e9; }
-  .surplus-cell .summary-val { color: #2e7d32; }
-  .deficit-cell { background: #ffebee; }
-  .deficit-cell .summary-val { color: #c62828; }
-  .summary-cell input { font-family: inherit; font-size: 18px; font-weight: 700; border: none; background: transparent; outline: none; width: 140px; }
+  /* Summary row */
+  .summary-row { display: flex; border-bottom: 1px solid #222; background: #111; }
+  .summary-cell { padding: 10px 16px; border-right: 1px solid #222; display: flex; flex-direction: column; gap: 3px; }
+  .summary-label { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #555; }
+  .summary-val { font-size: 18px; font-weight: 700; color: #eee; }
+  .surplus-cell { background: #0a1a0a; }
+  .surplus-cell .summary-val { color: #4caf50; }
+  .deficit-cell { background: #1a0a0a; }
+  .deficit-cell .summary-val { color: #ef5350; }
+  .summary-cell input { font-family: inherit; font-size: 18px; font-weight: 700; border: none; background: transparent; outline: none; width: 130px; color: #eee; }
 
   /* Table */
-  .budget-table { width: 100%; border-collapse: collapse; background: #fff; }
-  .budget-table th { background: #222; color: #aaa; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; padding: 7px 12px; text-align: left; position: sticky; top: 0; z-index: 1; }
-  .budget-table th:last-child { text-align: right; width: 40px; }
-  .budget-table th.amount-col { text-align: right; width: 110px; }
-  .budget-table td { padding: 0; border-bottom: 1px solid #eee; }
-  .budget-table td input { width: 100%; padding: 7px 12px; border: none; background: transparent; font-family: inherit; font-size: 13px; outline: none; }
-  .budget-table td input:focus { background: #fffde7; }
-  .budget-table td.amount-td input { text-align: right; }
-  .budget-table td.action-td { text-align: right; padding: 0 8px; }
-  .budget-table td.action-td button { background: none; border: none; color: #bbb; cursor: pointer; font-size: 15px; padding: 4px; }
-  .budget-table td.action-td button:hover { color: #ef5350; }
-  .budget-table tr:hover td { background: #fafafa; }
-  .cat-row td { background: #f5f5f5; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #555; padding: 5px 12px; border-top: 1px solid #ddd; }
-  .cat-row .cat-total { text-align: right; padding-right: 44px; color: #333; }
-  .add-row td { padding: 4px 12px; }
-  .add-row button { background: none; border: none; color: #1976d2; font-family: inherit; font-size: 11px; cursor: pointer; padding: 2px 0; }
-  .add-row button:hover { text-decoration: underline; }
-  .total-row td { font-weight: 700; font-size: 13px; padding: 8px 12px; background: #f5f5f5; border-top: 2px solid #333; }
-  .total-row .amount-td { text-align: right; padding-right: 44px; }
+  .budget-table { width: 100%; border-collapse: collapse; }
+  .budget-table th { background: #161616; color: #555; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; padding: 7px 12px; text-align: left; position: sticky; top: 0; z-index: 1; border-bottom: 1px solid #222; }
+  .budget-table th.r { text-align: right; }
+  .budget-table td { padding: 0; border-bottom: 1px solid #1a1a1a; }
+  .budget-table td input { width: 100%; padding: 7px 12px; border: none; background: transparent; font-family: inherit; font-size: 13px; outline: none; color: #ccc; }
+  .budget-table td input:focus { background: #1a1a12; color: #eee; }
+  .budget-table td.r input { text-align: right; }
+  .budget-table td.act { text-align: right; padding: 0 8px; }
+  .budget-table td.act button { background: none; border: none; color: #333; cursor: pointer; font-size: 15px; padding: 4px; }
+  .budget-table td.act button:hover { color: #ef5350; }
+  .budget-table tr:hover td { background: #141414; }
+  .cat-row td { background: #161616; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #555; padding: 5px 12px; border-top: 1px solid #222; border-bottom: 1px solid #222; }
+  .cat-row td.r { text-align: right; padding-right: 44px; color: #888; }
+  .add-row td { padding: 4px 12px; background: #0d0d0d; }
+  .add-row button { background: none; border: none; color: #2a4a7a; font-family: inherit; font-size: 11px; cursor: pointer; padding: 2px 0; }
+  .add-row button:hover { color: #5b9cf6; }
+  .total-row td { font-weight: 700; font-size: 13px; padding: 10px 12px; background: #111; border-top: 1px solid #444; color: #ddd; }
+  .total-row td.r { text-align: right; padding-right: 44px; }
 
-  /* Compare table */
+  /* Compare */
   #compare-view { display: none; padding: 16px; }
+  .compare-h { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #555; margin-bottom: 12px; }
   .compare-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .compare-table th { background: #222; color: #aaa; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; padding: 7px 12px; text-align: right; }
-  .compare-table th:first-child { text-align: left; width: 220px; }
-  .compare-table td { padding: 6px 12px; border-bottom: 1px solid #eee; text-align: right; background: #fff; }
-  .compare-table td:first-child { text-align: left; }
-  .compare-table .cat-h td { background: #f5f5f5; font-weight: 700; font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: .06em; padding: 4px 12px; border-top: 1px solid #ddd; }
-  .compare-table .total-r td { font-weight: 700; background: #f0f0f0; border-top: 2px solid #333; }
-  .compare-table .surplus-r td { font-weight: 800; font-size: 14px; }
-  .compare-table .surplus-r .pos { color: #2e7d32; background: #e8f5e9; }
-  .compare-table .surplus-r .neg { color: #c62828; background: #ffebee; }
+  .compare-table th { background: #161616; color: #555; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; padding: 7px 12px; text-align: right; border-bottom: 1px solid #222; }
+  .compare-table th:first-child { text-align: left; }
+  .compare-table td { padding: 6px 12px; border-bottom: 1px solid #1a1a1a; text-align: right; background: #111; color: #888; }
+  .compare-table td:first-child { text-align: left; color: #666; }
+  .compare-table .cat-h td { background: #161616; font-weight: 700; font-size: 9px; text-transform: uppercase; color: #444; letter-spacing: .08em; padding: 4px 12px; border-top: 1px solid #222; }
+  .compare-table .total-r td { font-weight: 700; background: #161616; border-top: 1px solid #444; color: #ddd; font-size: 13px; }
+  .compare-table .income-r td { background: #111; color: #666; font-weight: 600; }
+  .compare-table .surplus-r td { font-weight: 800; font-size: 14px; border-top: 1px solid #444; }
+  .compare-table .surplus-r .pos { color: #4caf50; background: #0a1a0a; }
+  .compare-table .surplus-r .neg { color: #ef5350; background: #1a0a0a; }
 </style>
 </head>
 <body>
 
 <nav id="sidebar">
   <h1>BUDGET PLANNER</h1>
-  <button class="s-btn active" onclick="show('detail')">Current <span class="s-badge">+720</span></button>
+  <button class="s-btn active" onclick="show('detail')">Current <span class="s-badge pos">+720</span></button>
   <button class="s-btn" onclick="show('detail2')">If I Move <span class="s-badge neg">-280</span></button>
   <button class="s-btn compare" onclick="show('compare')">⇄ Compare All</button>
   <button class="s-new">+ New Scenario</button>
 </nav>
 
 <main id="main">
-
-  <!-- DETAIL: Current -->
+  <!-- CURRENT -->
   <div id="view-detail">
     <div class="toolbar">
       <input class="title" value="Current" />
-      <button class="tb-btn danger">Delete</button>
+      <button class="tb-btn">Delete</button>
     </div>
-
     <div class="summary-row">
-      <div class="summary-cell">
-        <span class="summary-label">Monthly Income</span>
-        <input type="number" value="5000" style="font-size:18px;font-weight:700;border:none;background:transparent;outline:none;width:120px;font-family:inherit;" />
-      </div>
-      <div class="summary-cell">
-        <span class="summary-label">Total Expenses</span>
-        <span class="summary-val">$4,280</span>
-      </div>
-      <div class="summary-cell surplus-cell">
-        <span class="summary-label">Surplus</span>
-        <span class="summary-val">+$720</span>
-      </div>
+      <div class="summary-cell"><span class="summary-label">Income</span><input type="number" value="5000" /></div>
+      <div class="summary-cell"><span class="summary-label">Expenses</span><span class="summary-val">$4,280</span></div>
+      <div class="summary-cell surplus-cell"><span class="summary-label">Surplus</span><span class="summary-val">+$720</span></div>
     </div>
-
     <table class="budget-table">
-      <thead>
-        <tr>
-          <th style="width:200px">Category</th>
-          <th>Item</th>
-          <th class="amount-col">Monthly ($)</th>
-          <th></th>
-        </tr>
-      </thead>
+      <thead><tr><th style="width:180px">Category</th><th>Item</th><th class="r" style="width:110px">$/mo</th><th style="width:36px"></th></tr></thead>
       <tbody>
-        <tr class="cat-row"><td colspan="3">Housing</td><td class="cat-total">$1,500</td></tr>
-        <tr><td><input value="Housing" /></td><td><input value="Rent / Mortgage" /></td><td class="amount-td"><input type="number" value="1500" /></td><td class="action-td"><button>×</button></td></tr>
+        <tr class="cat-row"><td colspan="3">Housing</td><td class="r">$1,500</td></tr>
+        <tr><td><input value="Housing" /></td><td><input value="Rent / Mortgage" /></td><td class="r"><input type="number" value="1500" /></td><td class="act"><button>×</button></td></tr>
         <tr class="add-row"><td colspan="4"><button>+ add row</button></td></tr>
 
-        <tr class="cat-row"><td colspan="3">Utilities</td><td class="cat-total">$210</td></tr>
-        <tr><td><input value="Utilities" /></td><td><input value="Electric" /></td><td class="amount-td"><input type="number" value="90" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Utilities" /></td><td><input value="Gas" /></td><td class="amount-td"><input type="number" value="60" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Utilities" /></td><td><input value="Water" /></td><td class="amount-td"><input type="number" value="60" /></td><td class="action-td"><button>×</button></td></tr>
+        <tr class="cat-row"><td colspan="3">Utilities</td><td class="r">$210</td></tr>
+        <tr><td><input value="Utilities" /></td><td><input value="Electric" /></td><td class="r"><input type="number" value="90" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Utilities" /></td><td><input value="Gas" /></td><td class="r"><input type="number" value="60" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Utilities" /></td><td><input value="Water" /></td><td class="r"><input type="number" value="60" /></td><td class="act"><button>×</button></td></tr>
         <tr class="add-row"><td colspan="4"><button>+ add row</button></td></tr>
 
-        <tr class="cat-row"><td colspan="3">Phone &amp; Internet</td><td class="cat-total">$130</td></tr>
-        <tr><td><input value="Phone &amp; Internet" /></td><td><input value="Phone" /></td><td class="amount-td"><input type="number" value="80" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Phone &amp; Internet" /></td><td><input value="Internet" /></td><td class="amount-td"><input type="number" value="50" /></td><td class="action-td"><button>×</button></td></tr>
+        <tr class="cat-row"><td colspan="3">Phone &amp; Internet</td><td class="r">$130</td></tr>
+        <tr><td><input value="Phone &amp; Internet" /></td><td><input value="Phone" /></td><td class="r"><input type="number" value="80" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Phone &amp; Internet" /></td><td><input value="Internet" /></td><td class="r"><input type="number" value="50" /></td><td class="act"><button>×</button></td></tr>
         <tr class="add-row"><td colspan="4"><button>+ add row</button></td></tr>
 
-        <tr class="cat-row"><td colspan="3">Child Expenses</td><td class="cat-total">$800</td></tr>
-        <tr><td><input value="Child Expenses" /></td><td><input value="Childcare" /></td><td class="amount-td"><input type="number" value="500" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Child Expenses" /></td><td><input value="School" /></td><td class="amount-td"><input type="number" value="200" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Child Expenses" /></td><td><input value="Activities" /></td><td class="amount-td"><input type="number" value="100" /></td><td class="action-td"><button>×</button></td></tr>
+        <tr class="cat-row"><td colspan="3">Child Expenses</td><td class="r">$800</td></tr>
+        <tr><td><input value="Child Expenses" /></td><td><input value="Childcare" /></td><td class="r"><input type="number" value="500" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Child Expenses" /></td><td><input value="School" /></td><td class="r"><input type="number" value="200" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Child Expenses" /></td><td><input value="Activities" /></td><td class="r"><input type="number" value="100" /></td><td class="act"><button>×</button></td></tr>
         <tr class="add-row"><td colspan="4"><button>+ add row</button></td></tr>
 
-        <tr class="cat-row"><td colspan="3">Transportation</td><td class="cat-total">$480</td></tr>
-        <tr><td><input value="Transportation" /></td><td><input value="Car payment" /></td><td class="amount-td"><input type="number" value="300" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Transportation" /></td><td><input value="Gas / Fuel" /></td><td class="amount-td"><input type="number" value="120" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Transportation" /></td><td><input value="Car insurance" /></td><td class="amount-td"><input type="number" value="60" /></td><td class="action-td"><button>×</button></td></tr>
+        <tr class="cat-row"><td colspan="3">Transportation</td><td class="r">$480</td></tr>
+        <tr><td><input value="Transportation" /></td><td><input value="Car payment" /></td><td class="r"><input type="number" value="300" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Transportation" /></td><td><input value="Gas / Fuel" /></td><td class="r"><input type="number" value="120" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Transportation" /></td><td><input value="Car insurance" /></td><td class="r"><input type="number" value="60" /></td><td class="act"><button>×</button></td></tr>
         <tr class="add-row"><td colspan="4"><button>+ add row</button></td></tr>
 
-        <tr class="cat-row"><td colspan="3">Insurance</td><td class="cat-total">$260</td></tr>
-        <tr><td><input value="Insurance" /></td><td><input value="Health" /></td><td class="amount-td"><input type="number" value="180" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Insurance" /></td><td><input value="Dental" /></td><td class="amount-td"><input type="number" value="40" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Insurance" /></td><td><input value="Home / Renters" /></td><td class="amount-td"><input type="number" value="40" /></td><td class="action-td"><button>×</button></td></tr>
+        <tr class="cat-row"><td colspan="3">Insurance</td><td class="r">$260</td></tr>
+        <tr><td><input value="Insurance" /></td><td><input value="Health" /></td><td class="r"><input type="number" value="180" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Insurance" /></td><td><input value="Dental" /></td><td class="r"><input type="number" value="40" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Insurance" /></td><td><input value="Home / Renters" /></td><td class="r"><input type="number" value="40" /></td><td class="act"><button>×</button></td></tr>
         <tr class="add-row"><td colspan="4"><button>+ add row</button></td></tr>
 
-        <tr class="cat-row"><td colspan="3">Savings &amp; Investments</td><td class="cat-total">$240</td></tr>
-        <tr><td><input value="Savings &amp; Investments" /></td><td><input value="Savings" /></td><td class="amount-td"><input type="number" value="150" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Savings &amp; Investments" /></td><td><input value="Investments" /></td><td class="amount-td"><input type="number" value="90" /></td><td class="action-td"><button>×</button></td></tr>
+        <tr class="cat-row"><td colspan="3">Savings &amp; Investments</td><td class="r">$240</td></tr>
+        <tr><td><input value="Savings &amp; Investments" /></td><td><input value="Savings" /></td><td class="r"><input type="number" value="150" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Savings &amp; Investments" /></td><td><input value="Investments" /></td><td class="r"><input type="number" value="90" /></td><td class="act"><button>×</button></td></tr>
         <tr class="add-row"><td colspan="4"><button>+ add row</button></td></tr>
 
-        <tr class="cat-row"><td colspan="3">Entertainment &amp; Dining</td><td class="cat-total">$200</td></tr>
-        <tr><td><input value="Entertainment &amp; Dining" /></td><td><input value="Dining out" /></td><td class="amount-td"><input type="number" value="120" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Entertainment &amp; Dining" /></td><td><input value="Entertainment" /></td><td class="amount-td"><input type="number" value="80" /></td><td class="action-td"><button>×</button></td></tr>
+        <tr class="cat-row"><td colspan="3">Entertainment &amp; Dining</td><td class="r">$200</td></tr>
+        <tr><td><input value="Entertainment" /></td><td><input value="Dining out" /></td><td class="r"><input type="number" value="120" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Entertainment" /></td><td><input value="Entertainment" /></td><td class="r"><input type="number" value="80" /></td><td class="act"><button>×</button></td></tr>
         <tr class="add-row"><td colspan="4"><button>+ add row</button></td></tr>
 
-        <tr class="total-row"><td colspan="3">TOTAL EXPENSES</td><td class="amount-td">$4,280</td></tr>
+        <tr class="total-row"><td colspan="3">TOTAL EXPENSES</td><td class="r">$4,280</td></tr>
       </tbody>
     </table>
   </div>
 
-  <!-- DETAIL: If I Move (simplified) -->
+  <!-- IF I MOVE -->
   <div id="view-detail2" style="display:none">
-    <div class="toolbar">
-      <input class="title" value="If I Move" />
-      <button class="tb-btn danger">Delete</button>
-    </div>
+    <div class="toolbar"><input class="title" value="If I Move" /><button class="tb-btn">Delete</button></div>
     <div class="summary-row">
-      <div class="summary-cell">
-        <span class="summary-label">Monthly Income</span>
-        <input type="number" value="5000" style="font-size:18px;font-weight:700;border:none;background:transparent;outline:none;width:120px;font-family:inherit;" />
-      </div>
-      <div class="summary-cell">
-        <span class="summary-label">Total Expenses</span>
-        <span class="summary-val">$5,280</span>
-      </div>
-      <div class="summary-cell deficit-cell">
-        <span class="summary-label">Deficit</span>
-        <span class="summary-val">−$280</span>
-      </div>
+      <div class="summary-cell"><span class="summary-label">Income</span><input type="number" value="5000" /></div>
+      <div class="summary-cell"><span class="summary-label">Expenses</span><span class="summary-val">$5,280</span></div>
+      <div class="summary-cell deficit-cell"><span class="summary-label">Deficit</span><span class="summary-val">−$280</span></div>
     </div>
     <table class="budget-table">
-      <thead><tr><th style="width:200px">Category</th><th>Item</th><th class="amount-col">Monthly ($)</th><th></th></tr></thead>
+      <thead><tr><th style="width:180px">Category</th><th>Item</th><th class="r" style="width:110px">$/mo</th><th style="width:36px"></th></tr></thead>
       <tbody>
-        <tr class="cat-row"><td colspan="3">Housing</td><td class="cat-total">$2,500</td></tr>
-        <tr><td><input value="Housing" /></td><td><input value="Rent / Mortgage" /></td><td class="amount-td"><input type="number" value="2500" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr class="cat-row"><td colspan="3">Utilities</td><td class="cat-total">$250</td></tr>
-        <tr><td><input value="Utilities" /></td><td><input value="Electric" /></td><td class="amount-td"><input type="number" value="110" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Utilities" /></td><td><input value="Gas" /></td><td class="amount-td"><input type="number" value="80" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Utilities" /></td><td><input value="Water" /></td><td class="amount-td"><input type="number" value="60" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr class="cat-row"><td colspan="3">Child Expenses</td><td class="cat-total">$800</td></tr>
-        <tr><td><input value="Child Expenses" /></td><td><input value="Childcare" /></td><td class="amount-td"><input type="number" value="500" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Child Expenses" /></td><td><input value="School" /></td><td class="amount-td"><input type="number" value="200" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Child Expenses" /></td><td><input value="Activities" /></td><td class="amount-td"><input type="number" value="100" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr class="cat-row"><td colspan="3">Savings &amp; Investments</td><td class="cat-total">$240</td></tr>
-        <tr><td><input value="Savings &amp; Investments" /></td><td><input value="Savings" /></td><td class="amount-td"><input type="number" value="150" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr><td><input value="Savings &amp; Investments" /></td><td><input value="Investments" /></td><td class="amount-td"><input type="number" value="90" /></td><td class="action-td"><button>×</button></td></tr>
-        <tr class="total-row"><td colspan="3">TOTAL EXPENSES</td><td class="amount-td">$5,280</td></tr>
+        <tr class="cat-row"><td colspan="3">Housing</td><td class="r">$2,500</td></tr>
+        <tr><td><input value="Housing" /></td><td><input value="Rent / Mortgage" /></td><td class="r"><input type="number" value="2500" /></td><td class="act"><button>×</button></td></tr>
+        <tr class="add-row"><td colspan="4"><button>+ add row</button></td></tr>
+        <tr class="cat-row"><td colspan="3">Child Expenses</td><td class="r">$800</td></tr>
+        <tr><td><input value="Child Expenses" /></td><td><input value="Childcare" /></td><td class="r"><input type="number" value="500" /></td><td class="act"><button>×</button></td></tr>
+        <tr><td><input value="Child Expenses" /></td><td><input value="School" /></td><td class="r"><input type="number" value="200" /></td><td class="act"><button>×</button></td></tr>
+        <tr class="total-row"><td colspan="3">TOTAL EXPENSES</td><td class="r">$5,280</td></tr>
       </tbody>
     </table>
   </div>
 
   <!-- COMPARE -->
   <div id="view-compare" style="display:none; padding:16px;">
-    <div style="font-weight:700;font-size:14px;margin-bottom:12px;letter-spacing:.04em;text-transform:uppercase;">SCENARIO COMPARISON</div>
+    <div class="compare-h">Scenario Comparison</div>
     <table class="compare-table">
       <thead><tr><th>Category / Item</th><th>Current</th><th>If I Move</th></tr></thead>
       <tbody>
         <tr class="cat-h"><td colspan="3">Housing</td></tr>
         <tr><td>Rent / Mortgage</td><td>$1,500</td><td>$2,500</td></tr>
         <tr class="cat-h"><td colspan="3">Utilities</td></tr>
-        <tr><td>Electric</td><td>$90</td><td>$110</td></tr>
-        <tr><td>Gas</td><td>$60</td><td>$80</td></tr>
-        <tr><td>Water</td><td>$60</td><td>$60</td></tr>
-        <tr class="cat-h"><td colspan="3">Phone &amp; Internet</td></tr>
-        <tr><td>Phone</td><td>$80</td><td>$80</td></tr>
-        <tr><td>Internet</td><td>$50</td><td>$50</td></tr>
+        <tr><td>Electric + Gas + Water</td><td>$210</td><td>$250</td></tr>
         <tr class="cat-h"><td colspan="3">Child Expenses</td></tr>
-        <tr><td>Childcare</td><td>$500</td><td>$500</td></tr>
-        <tr><td>School</td><td>$200</td><td>$200</td></tr>
-        <tr><td>Activities</td><td>$100</td><td>$100</td></tr>
+        <tr><td>Childcare / School / Activities</td><td>$800</td><td>$800</td></tr>
         <tr class="cat-h"><td colspan="3">Transportation</td></tr>
-        <tr><td>Car payment</td><td>$300</td><td>$300</td></tr>
-        <tr><td>Gas / Fuel</td><td>$120</td><td>$120</td></tr>
-        <tr><td>Car insurance</td><td>$60</td><td>$60</td></tr>
+        <tr><td>Car + Fuel + Insurance</td><td>$480</td><td>$480</td></tr>
         <tr class="cat-h"><td colspan="3">Insurance</td></tr>
-        <tr><td>Health</td><td>$180</td><td>—</td></tr>
-        <tr><td>Dental</td><td>$40</td><td>—</td></tr>
-        <tr><td>Home / Renters</td><td>$40</td><td>—</td></tr>
+        <tr><td>Health + Dental + Home</td><td>$260</td><td>—</td></tr>
         <tr class="cat-h"><td colspan="3">Savings &amp; Investments</td></tr>
-        <tr><td>Savings</td><td>$150</td><td>$150</td></tr>
-        <tr><td>Investments</td><td>$90</td><td>$90</td></tr>
+        <tr><td>Savings + Investments</td><td>$240</td><td>$240</td></tr>
         <tr class="total-r"><td>Total Expenses</td><td>$4,280</td><td>$5,280</td></tr>
-        <tr><td style="padding:6px 12px;font-weight:600;background:#fff">Income</td><td style="background:#fff">$5,000</td><td style="background:#fff">$5,000</td></tr>
-        <tr class="surplus-r"><td style="padding:8px 12px;font-weight:800;background:#fff">Surplus / Deficit</td><td class="pos">+$720</td><td class="neg">−$280</td></tr>
+        <tr class="income-r"><td>Income</td><td>$5,000</td><td>$5,000</td></tr>
+        <tr class="surplus-r"><td style="padding:8px 12px;color:#555;font-weight:700">Surplus / Deficit</td><td class="pos">+$720</td><td class="neg">−$280</td></tr>
       </tbody>
     </table>
   </div>
-
 </main>
 
 <script>
   function show(v) {
-    ['detail','detail2','compare'].forEach(id => document.getElementById('view-'+id).style.display = 'none');
-    document.getElementById('view-'+v).style.display = 'block';
-    document.querySelectorAll('.s-btn').forEach(b => b.classList.remove('active'));
+    ['detail','detail2','compare'].forEach(id => document.getElementById('view-'+id).style.display='none');
+    document.getElementById('view-'+v).style.display='block';
+    document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('active'));
     event.currentTarget.classList.add('active');
   }
 </script>
