@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Budget Planner — Mockup</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; background: #f5f5f5; color: #222; display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── Sidebar ── */
+  #sidebar { width: 220px; background: #1e1e2e; color: #cdd6f4; display: flex; flex-direction: column; flex-shrink: 0; }
+  #sidebar h1 { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #89b4fa; padding: 20px 16px 12px; border-bottom: 1px solid #313244; }
+  .scenario-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .scenario-btn { display: block; width: 100%; text-align: left; padding: 9px 16px; background: none; border: none; color: #cdd6f4; cursor: pointer; font-size: 13px; border-left: 3px solid transparent; transition: background .15s; }
+  .scenario-btn:hover { background: #313244; }
+  .scenario-btn.active { background: #313244; border-left-color: #89b4fa; color: #fff; font-weight: 600; }
+  .scenario-btn.compare-btn { color: #a6e3a1; border-left-color: transparent; margin-top: 4px; }
+  .scenario-btn.compare-btn.active { border-left-color: #a6e3a1; }
+  #new-scenario-btn { margin: 8px 12px 16px; padding: 8px; background: #313244; color: #89b4fa; border: 1px dashed #585b70; border-radius: 6px; cursor: pointer; font-size: 12px; width: calc(100% - 24px); }
+  #new-scenario-btn:hover { background: #45475a; }
+
+  /* ── Main content ── */
+  #main { flex: 1; overflow-y: auto; padding: 28px 32px; }
+
+  /* ── Scenario header ── */
+  .scenario-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .scenario-name { font-size: 22px; font-weight: 700; border: none; background: transparent; color: #222; outline: none; padding: 2px 4px; border-bottom: 2px solid transparent; flex: 1; }
+  .scenario-name:focus { border-bottom-color: #89b4fa; }
+  .delete-scenario-btn { background: none; border: 1px solid #e0e0e0; color: #999; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+  .delete-scenario-btn:hover { border-color: #e57373; color: #c62828; }
+
+  /* ── Income row ── */
+  .income-row { display: flex; align-items: center; gap: 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; }
+  .income-row label { font-weight: 600; font-size: 13px; color: #555; min-width: 130px; }
+  .income-row input { font-size: 18px; font-weight: 700; color: #1e1e2e; border: none; outline: none; background: transparent; width: 160px; }
+  .income-row input:focus { border-bottom: 2px solid #89b4fa; }
+  .income-row .currency { font-size: 16px; color: #888; }
+
+  /* ── Surplus bar ── */
+  .surplus-bar { border-radius: 8px; padding: 14px 18px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+  .surplus-bar.positive { background: #e8f5e9; border: 1px solid #a5d6a7; }
+  .surplus-bar.negative { background: #ffebee; border: 1px solid #ef9a9a; }
+  .surplus-bar .label { font-size: 13px; font-weight: 600; color: #555; }
+  .surplus-bar .amount { font-size: 24px; font-weight: 800; }
+  .surplus-bar.positive .amount { color: #2e7d32; }
+  .surplus-bar.negative .amount { color: #c62828; }
+  .surplus-bar .breakdown { font-size: 12px; color: #777; }
+
+  /* ── Category group ── */
+  .category-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 14px; overflow: hidden; }
+  .category-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #fafafa; border-bottom: 1px solid #e0e0e0; }
+  .category-header .cat-name { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #555; }
+  .category-header .cat-total { font-size: 13px; font-weight: 600; color: #333; }
+  .line-item { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-bottom: 1px solid #f0f0f0; }
+  .line-item:last-child { border-bottom: none; }
+  .line-item:hover { background: #fafafa; }
+  .line-item .item-name { flex: 1; border: none; background: transparent; font-size: 13px; color: #333; outline: none; padding: 2px 4px; }
+  .line-item .item-name:focus { background: #f0f4ff; border-radius: 4px; }
+  .line-item .item-amount { width: 90px; text-align: right; border: none; background: transparent; font-size: 13px; color: #333; outline: none; font-weight: 500; padding: 2px 4px; }
+  .line-item .item-amount:focus { background: #f0f4ff; border-radius: 4px; }
+  .line-item .del-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 0 2px; line-height: 1; }
+  .line-item .del-btn:hover { color: #c62828; }
+  .add-item-btn { display: block; width: 100%; text-align: left; padding: 8px 16px; background: none; border: none; color: #89b4fa; cursor: pointer; font-size: 12px; border-top: 1px dashed #e0e0e0; }
+  .add-item-btn:hover { background: #f0f4ff; }
+
+  /* ── Comparison view ── */
+  #compare-view { display: none; }
+  .compare-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+  .compare-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; }
+  .compare-table th { background: #1e1e2e; color: #cdd6f4; padding: 10px 14px; text-align: right; font-size: 13px; font-weight: 600; }
+  .compare-table th:first-child { text-align: left; }
+  .compare-table td { padding: 8px 14px; text-align: right; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+  .compare-table td:first-child { text-align: left; font-weight: 500; color: #555; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table .cat-heading td { background: #fafafa; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #888; padding: 6px 14px; border-top: 1px solid #e0e0e0; }
+  .compare-table .total-row td { background: #f5f5f5; font-weight: 700; color: #222; border-top: 2px solid #e0e0e0; }
+  .compare-table .income-row-tr td { background: #f5f5f5; font-weight: 600; color: #555; }
+  .compare-table .surplus-row td { font-weight: 800; font-size: 15px; border-top: 2px solid #e0e0e0; }
+  .green { color: #2e7d32; }
+  .red { color: #c62828; }
+  .surplus-row td.green { background: #e8f5e9; }
+  .surplus-row td.red { background: #ffebee; }
+
+  /* ── Misc ── */
+  .empty-state { text-align: center; padding: 60px 0; color: #999; }
+  .empty-state h2 { font-size: 18px; margin-bottom: 8px; color: #555; }
+  .tag { display: inline-block; font-size: 10px; background: #e8f5e9; color: #2e7d32; border-radius: 4px; padding: 1px 6px; margin-left: 6px; font-weight: 600; }
+  .tag.deficit { background: #ffebee; color: #c62828; }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<nav id="sidebar">
+  <h1>💰 Budget Planner</h1>
+  <div class="scenario-list">
+    <button class="scenario-btn active" onclick="showScenario('current')">
+      Current <span class="tag">+$720</span>
+    </button>
+    <button class="scenario-btn" onclick="showScenario('move')">
+      If I Move <span class="tag deficit">-$280</span>
+    </button>
+    <button class="scenario-btn compare-btn" onclick="showCompare()">
+      ⇄ Compare All
+    </button>
+  </div>
+  <button id="new-scenario-btn" onclick="alert('Would open a new scenario dialog')">+ New Scenario</button>
+</nav>
+
+<!-- ── MAIN ── -->
+<main id="main">
+
+  <!-- SCENARIO: Current -->
+  <div id="view-current">
+    <div class="scenario-header">
+      <input class="scenario-name" value="Current" />
+      <button class="delete-scenario-btn">Delete</button>
+    </div>
+
+    <div class="income-row">
+      <label>Monthly Income</label>
+      <span class="currency">$</span>
+      <input type="number" value="5000" oninput="recalc('current')" id="income-current" />
+    </div>
+
+    <div id="surplus-current" class="surplus-bar positive">
+      <div>
+        <div class="label">Monthly Surplus</div>
+        <div class="breakdown">$5,000 income − $4,280 expenses</div>
+      </div>
+      <div class="amount" id="surplus-amount-current">+$720</div>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Housing</span><span class="cat-total">$1,500</span></div>
+      <div class="line-item"><input class="item-name" value="Rent / Mortgage" /><input class="item-amount" type="number" value="1500" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Utilities</span><span class="cat-total">$210</span></div>
+      <div class="line-item"><input class="item-name" value="Electric" /><input class="item-amount" type="number" value="90" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Gas" /><input class="item-amount" type="number" value="60" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Water" /><input class="item-amount" type="number" value="60" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Phone &amp; Internet</span><span class="cat-total">$130</span></div>
+      <div class="line-item"><input class="item-name" value="Phone" /><input class="item-amount" type="number" value="80" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Internet" /><input class="item-amount" type="number" value="50" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Groceries &amp; Food</span><span class="cat-total">$600</span></div>
+      <div class="line-item"><input class="item-name" value="Groceries" /><input class="item-amount" type="number" value="600" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Child Expenses</span><span class="cat-total">$800</span></div>
+      <div class="line-item"><input class="item-name" value="Childcare" /><input class="item-amount" type="number" value="500" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="School" /><input class="item-amount" type="number" value="200" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Activities" /><input class="item-amount" type="number" value="100" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Transportation</span><span class="cat-total">$480</span></div>
+      <div class="line-item"><input class="item-name" value="Car payment" /><input class="item-amount" type="number" value="300" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Gas / Fuel" /><input class="item-amount" type="number" value="120" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Car insurance" /><input class="item-amount" type="number" value="60" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Insurance</span><span class="cat-total">$260</span></div>
+      <div class="line-item"><input class="item-name" value="Health" /><input class="item-amount" type="number" value="180" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Dental" /><input class="item-amount" type="number" value="40" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Home / Renters" /><input class="item-amount" type="number" value="40" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Subscriptions</span><span class="cat-total">$60</span></div>
+      <div class="line-item"><input class="item-name" value="Streaming" /><input class="item-amount" type="number" value="30" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Gym" /><input class="item-amount" type="number" value="30" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Savings &amp; Investments</span><span class="cat-total">$240</span></div>
+      <div class="line-item"><input class="item-name" value="Savings" /><input class="item-amount" type="number" value="150" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Investments" /><input class="item-amount" type="number" value="90" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+  </div>
+
+  <!-- SCENARIO: If I Move -->
+  <div id="view-move" style="display:none">
+    <div class="scenario-header">
+      <input class="scenario-name" value="If I Move" />
+      <button class="delete-scenario-btn">Delete</button>
+    </div>
+
+    <div class="income-row">
+      <label>Monthly Income</label>
+      <span class="currency">$</span>
+      <input type="number" value="5000" id="income-move" />
+    </div>
+
+    <div class="surplus-bar negative">
+      <div>
+        <div class="label">Monthly Deficit</div>
+        <div class="breakdown">$5,000 income − $5,280 expenses</div>
+      </div>
+      <div class="amount red">−$280</div>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Housing</span><span class="cat-total">$2,500</span></div>
+      <div class="line-item"><input class="item-name" value="Rent / Mortgage" /><input class="item-amount" type="number" value="2500" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Utilities</span><span class="cat-total">$250</span></div>
+      <div class="line-item"><input class="item-name" value="Electric" /><input class="item-amount" type="number" value="110" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Gas" /><input class="item-amount" type="number" value="80" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Water" /><input class="item-amount" type="number" value="60" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Phone &amp; Internet</span><span class="cat-total">$130</span></div>
+      <div class="line-item"><input class="item-name" value="Phone" /><input class="item-amount" type="number" value="80" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Internet" /><input class="item-amount" type="number" value="50" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Groceries &amp; Food</span><span class="cat-total">$600</span></div>
+      <div class="line-item"><input class="item-name" value="Groceries" /><input class="item-amount" type="number" value="600" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Child Expenses</span><span class="cat-total">$800</span></div>
+      <div class="line-item"><input class="item-name" value="Childcare" /><input class="item-amount" type="number" value="500" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="School" /><input class="item-amount" type="number" value="200" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Activities" /><input class="item-amount" type="number" value="100" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Transportation</span><span class="cat-total">$480</span></div>
+      <div class="line-item"><input class="item-name" value="Car payment" /><input class="item-amount" type="number" value="300" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Gas / Fuel" /><input class="item-amount" type="number" value="120" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Car insurance" /><input class="item-amount" type="number" value="60" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+
+    <div class="category-group">
+      <div class="category-header"><span class="cat-name">Savings &amp; Investments</span><span class="cat-total">$240</span></div>
+      <div class="line-item"><input class="item-name" value="Savings" /><input class="item-amount" type="number" value="150" /><button class="del-btn">×</button></div>
+      <div class="line-item"><input class="item-name" value="Investments" /><input class="item-amount" type="number" value="90" /><button class="del-btn">×</button></div>
+      <button class="add-item-btn">+ Add item</button>
+    </div>
+  </div>
+
+  <!-- COMPARE VIEW -->
+  <div id="compare-view">
+    <div class="compare-title">Scenario Comparison</div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:200px">Category / Item</th>
+          <th>Current</th>
+          <th>If I Move</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="cat-heading"><td colspan="3">Housing</td></tr>
+        <tr><td>Rent / Mortgage</td><td>$1,500</td><td>$2,500</td></tr>
+
+        <tr class="cat-heading"><td colspan="3">Utilities</td></tr>
+        <tr><td>Electric</td><td>$90</td><td>$110</td></tr>
+        <tr><td>Gas</td><td>$60</td><td>$80</td></tr>
+        <tr><td>Water</td><td>$60</td><td>$60</td></tr>
+
+        <tr class="cat-heading"><td colspan="3">Phone &amp; Internet</td></tr>
+        <tr><td>Phone</td><td>$80</td><td>$80</td></tr>
+        <tr><td>Internet</td><td>$50</td><td>$50</td></tr>
+
+        <tr class="cat-heading"><td colspan="3">Groceries &amp; Food</td></tr>
+        <tr><td>Groceries</td><td>$600</td><td>$600</td></tr>
+
+        <tr class="cat-heading"><td colspan="3">Child Expenses</td></tr>
+        <tr><td>Childcare</td><td>$500</td><td>$500</td></tr>
+        <tr><td>School</td><td>$200</td><td>$200</td></tr>
+        <tr><td>Activities</td><td>$100</td><td>$100</td></tr>
+
+        <tr class="cat-heading"><td colspan="3">Transportation</td></tr>
+        <tr><td>Car payment</td><td>$300</td><td>$300</td></tr>
+        <tr><td>Gas / Fuel</td><td>$120</td><td>$120</td></tr>
+        <tr><td>Car insurance</td><td>$60</td><td>$60</td></tr>
+
+        <tr class="cat-heading"><td colspan="3">Insurance</td></tr>
+        <tr><td>Health</td><td>$180</td><td>—</td></tr>
+        <tr><td>Dental</td><td>$40</td><td>—</td></tr>
+        <tr><td>Home / Renters</td><td>$40</td><td>—</td></tr>
+
+        <tr class="cat-heading"><td colspan="3">Subscriptions</td></tr>
+        <tr><td>Streaming</td><td>$30</td><td>—</td></tr>
+        <tr><td>Gym</td><td>$30</td><td>—</td></tr>
+
+        <tr class="cat-heading"><td colspan="3">Savings &amp; Investments</td></tr>
+        <tr><td>Savings</td><td>$150</td><td>$150</td></tr>
+        <tr><td>Investments</td><td>$90</td><td>$90</td></tr>
+
+        <tr class="total-row"><td>Total Expenses</td><td>$4,280</td><td>$5,280</td></tr>
+        <tr class="income-row-tr"><td>Income</td><td>$5,000</td><td>$5,000</td></tr>
+        <tr class="surplus-row"><td>Surplus / Deficit</td><td class="green">+$720</td><td class="red">−$280</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+  function showScenario(id) {
+    document.getElementById('view-current').style.display = 'none';
+    document.getElementById('view-move').style.display = 'none';
+    document.getElementById('compare-view').style.display = 'none';
+    document.getElementById('view-' + id).style.display = 'block';
+    document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  function showCompare() {
+    document.getElementById('view-current').style.display = 'none';
+    document.getElementById('view-move').style.display = 'none';
+    document.getElementById('compare-view').style.display = 'block';
+    document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+</script>
+</body>
+</html>
