@@ -150,6 +150,64 @@ Every new scenario is seeded with these categories and items (amount = 0):
 
 ---
 
+### F7 — Mobile-Responsive Layout
+
+The app must be usable on mobile devices (phones and tablets) for viewing and light editing.
+
+**F7.1 Responsive breakpoints**
+- **≥ 768px (tablet/desktop)**: full sidebar + main panel side-by-side layout
+- **< 768px (mobile)**: sidebar collapses; bottom tab bar replaces it
+
+**F7.2 Mobile bottom tab bar**
+- Replaces sidebar on screens < 768px
+- Four tabs: Scenarios list (icon + label), active scenario detail, Compare, Review
+- Active tab indicated by teal underline/fill
+- Scenario list opens a slide-up sheet or full-screen list view
+
+**F7.3 Mobile content layout**
+- KPI tiles stack vertically (single column) on mobile
+- Category cards remain full-width
+- Donut chart and category list stack vertically (chart above, list below)
+- Comparison table scrolls horizontally on mobile (`overflow-x: auto`)
+- All tap targets ≥ 44px height
+- No horizontal overflow on the main content area
+
+**F7.4 Mobile typography**
+- Scenario title font size: 18px (down from 22px)
+- KPI value font size: 22px (down from 26px)
+- Body text: 14px (unchanged)
+
+---
+
+### F8 — Review / Share Page
+
+A clean, screenshot-optimised summary of a single scenario designed to be shared as an image on mobile.
+
+**F8.1 Review view**
+- Accessible via a "📋 Review" button in the scenario header (desktop) or bottom tab bar (mobile)
+- Route/view: `activeView === 'review'`
+- White/light background option so it looks good as a screenshot on any device
+
+**F8.2 Review page content**
+- **Header**: app name, scenario name, date generated (`April 2026`)
+- **Income / Expenses / Surplus** — three stat boxes in a row
+- **Category breakdown list**: each row shows icon, category name, total amount, and a mini progress bar
+- **Spending-mix donut** (compact, below the list)
+- **Footer**: "Generated with Budget Planner" watermark
+
+**F8.3 Screenshot mode**
+- Review page uses a fixed max-width (390px — iPhone 14 width) centred on screen
+- Designed to fill a phone screen when screenshotted from a mobile browser
+- Light theme: `#ffffff` background, `#1a1a2e` text — high contrast for screenshots
+- Surplus: bold green (`#1a7a3a`); Deficit: bold red (`#c62828`)
+- No interactive inputs on the review page — display only
+
+**F8.4 Print / save**
+- "Print / Save as PDF" button triggers `window.print()`
+- `@media print` CSS hides the button and navigation, keeps only the review card
+
+---
+
 ## Acceptance Criteria Summary
 
 | ID | Criterion |
@@ -162,6 +220,10 @@ Every new scenario is seeded with these categories and items (amount = 0):
 | AC-6 | Deleting a scenario removes it from sidebar and cascades items in DB |
 | AC-7 | Refreshing the browser reloads all data correctly from SQLite |
 | AC-8 | App shows empty state when no scenarios exist |
+| AC-9 | On screens < 768px, sidebar is hidden and bottom tab bar is shown |
+| AC-10 | All tap targets on mobile are at least 44px tall |
+| AC-11 | Review page renders correctly at 390px width and is screenshot-ready |
+| AC-12 | "Print / Save as PDF" button triggers browser print dialog |
 
 ---
 

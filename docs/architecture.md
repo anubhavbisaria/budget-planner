@@ -255,7 +255,7 @@ Managed with `useReducer` in `App.jsx`. No external state library.
 {
   scenarios: [],          // list from GET /scenarios — name + surplus only
   activeId: null,         // currently selected scenario id
-  activeView: 'detail',   // 'detail' | 'compare'
+  activeView: 'detail',   // 'detail' | 'compare' | 'review'
   detail: null,           // full object from GET /scenarios/{id}
   loading: false,
   error: null
@@ -264,7 +264,7 @@ Managed with `useReducer` in `App.jsx`. No external state library.
 // Actions
 LOAD_SCENARIOS       // replace scenarios list
 SET_ACTIVE           // change activeId, triggers detail fetch
-SET_VIEW             // switch between 'detail' and 'compare'
+SET_VIEW             // switch between 'detail', 'compare', 'review'
 LOAD_DETAIL          // replace detail object
 SET_LOADING / SET_ERROR
 ```
@@ -331,6 +331,77 @@ Center label: percentage of income spent.
 
 ---
 
+## Responsive Layout
+
+### Breakpoints
+
+| Name | Width | Layout |
+|------|-------|--------|
+| Mobile | `< 768px` | Single-column, bottom tab bar, sidebar hidden |
+| Tablet/Desktop | `≥ 768px` | Sidebar (240px) + main panel side-by-side |
+
+### Mobile layout changes (< 768px)
+
+- `#sidebar` → `display: none`
+- `#bottom-tabs` → `display: flex` (fixed, bottom of viewport, 60px tall)
+- KPI tiles: `grid-template-columns: 1fr` (stacked)
+- Donut + category list: column direction (chart above list)
+- Comparison table: `overflow-x: auto` wrapper
+- All interactive rows: `min-height: 44px` (touch target)
+- Review page card: `width: 100%`, no outer padding
+
+### New components for mobile
+
+| Component | Purpose |
+|-----------|---------|
+| `BottomTabs.jsx` | Fixed bottom navigation bar for mobile |
+| `ScenarioListSheet.jsx` | Full-screen scenario list activated from bottom tab |
+| `ReviewPage.jsx` | Screenshot-optimised, light-theme single-scenario summary |
+
+### CSS strategy
+
+- Base styles: mobile-first
+- Desktop overrides inside `@media (min-width: 768px)` blocks
+- CSS custom properties defined in `global.css` (see Epic 6, Story 6.6)
+- No media-query JS — pure CSS responsive
+
+---
+
+## Review Page Layout (390px target)
+
+The review page is a self-contained light-theme card designed to fill a phone screen.
+
+```
+┌─────────────────────────────┐  ← 390px max-width, centred
+│  Budget Planner   April 2026│  ← header
+│  ─────────────────────────  │
+│  SCENARIO: Current          │
+│                             │
+│  ┌────────┬────────┬──────┐ │
+│  │ Income │Expenses│Surpl.│ │  ← 3 stat boxes
+│  │ $5,000 │ $4,280 │ $720 │ │
+│  └────────┴────────┴──────┘ │
+│                             │
+│  🏠 Housing          $1,500 │  ← category rows
+│     ████████░░░░  30%       │
+│  ⚡ Utilities          $210 │
+│     ██░░░░░░░░░░   4%       │
+│  ...                        │
+│                             │
+│  [Donut chart — compact]    │
+│                             │
+│  ─────────────────────────  │
+│  Generated with BudgetWise  │  ← footer watermark
+└─────────────────────────────┘
+```
+
+- Background: `#ffffff`; text: `#1a1a2e`
+- Surplus value: `#1a7a3a` (accessible green on white)
+- Deficit value: `#c62828` (accessible red on white)
+- Print-safe: `@media print` hides all nav/buttons
+
+---
+
 ## Running Locally
 
 **Backend**
@@ -364,3 +435,5 @@ npm run dev
 | CSS framework | None — plain CSS | Design is custom; avoids fighting a framework |
 | Blur-to-save | Yes | Simpler than debounce; still feels responsive |
 | Category as string | Yes | Avoids FK table; allows custom categories without schema change |
+| Responsive strategy | Mobile-first CSS + `@media (min-width: 768px)` | No JS breakpoint detection; pure CSS |
+| Review page theme | Light (`#fff` bg) | Screenshots on mobile look better on light background; dark app preserved everywhere else |
