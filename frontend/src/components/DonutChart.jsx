@@ -18,13 +18,14 @@ function buildSlices(categories, totalExpenses) {
   return slices
 }
 
-export default function DonutChart({ categories, totalExpenses, income }) {
+export default function DonutChart({ categories, totalExpenses, income, compact = false }) {
   const slices = buildSlices(categories, totalExpenses)
   const centerLabel = income > 0 ? Math.round((totalExpenses / income) * 100) + '%' : '—'
+  const svgSize = compact ? 120 : 160
 
   return (
-    <div className="donut-chart-card">
-      <svg viewBox="0 0 100 100" width="160" height="160" className="donut-svg">
+    <div className={`donut-chart-card${compact ? ' compact' : ''}`}>
+      <svg viewBox="0 0 100 100" width={svgSize} height={svgSize} className="donut-svg">
         <circle
           cx="50" cy="50" r={R}
           fill="none"
@@ -52,7 +53,7 @@ export default function DonutChart({ categories, totalExpenses, income }) {
         <text x="50" y="62" textAnchor="middle" className="donut-center-sub">spent</text>
       </svg>
 
-      <ul className="donut-legend">
+      <ul className={`donut-legend${compact ? ' compact' : ''}`}>
         {slices.map((s) => {
           const { color } = getCategoryMeta(s.category)
           return (

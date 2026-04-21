@@ -1,9 +1,12 @@
-import { useReducer, useEffect } from 'react'
+import { useReducer, useEffect, useState } from 'react'
 import { getScenarios, createScenario, getScenario, deleteScenario } from './api'
 import Sidebar from './components/Sidebar'
 import EmptyState from './components/EmptyState'
 import ScenarioDetail from './components/ScenarioDetail'
 import ComparisonView from './components/ComparisonView'
+import ReviewPage from './components/ReviewPage'
+import BottomTabs from './components/BottomTabs'
+import ScenarioListSheet from './components/ScenarioListSheet'
 import './index.css'
 
 const initialState = {
@@ -36,6 +39,7 @@ function reducer(state, action) {
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const [sheetOpen, setSheetOpen] = useState(false)
 
   async function loadScenarios() {
     try {
@@ -105,6 +109,14 @@ export default function App() {
     if (state.activeView === 'compare') {
       return <ComparisonView />
     }
+    if (state.activeView === 'review') {
+      return (
+        <ReviewPage
+          detail={state.detail}
+          onBack={() => dispatch({ type: 'SET_VIEW', payload: 'detail' })}
+        />
+      )
+    }
     return (
       <ScenarioDetail
         detail={state.detail}
@@ -113,9 +125,12 @@ export default function App() {
           loadScenarios()
         }}
         onDelete={() => handleDeleteScenario(state.activeId)}
+        onReview={() => dispatch({ type: 'SET_VIEW', payload: 'review' })}
       />
     )
   }
+
+  const hasActive = !!state.activeId
 
   return (
     <div className="app-layout">
@@ -130,6 +145,29 @@ export default function App() {
         {state.error && <div className="error-banner">{state.error}</div>}
         {renderMain()}
       </main>
+
+      <BottomTabs
+        activeView={state.activeView}
+        hasActive={hasActive}
+        onScenarios={() => setSheetOpen(true)}
+        onDetail={() => {
+          if (hasActive) dispatch({ type: 'SET_VIEW', payload: 'detail' })
+        }}
+        onCompare={() => dispatch({ type: 'SET_VIEW', payload: 'compare' })}
+        onReview={() => {
+          if (hasActive) dispatch({ type: 'SET_VIEW', payload: 'review' })
+        }}
+      />
+
+      {sheetOpen && (
+        <ScenarioListSheet
+          scenarios={state.scenarios}
+          activeId={state.activeId}
+          onSelect={handleSelectScenario}
+          onNew={handleNewScenario}
+          onClose={() => setSheetOpen(false)}
+        />
+      )}
     </div>
   )
 }

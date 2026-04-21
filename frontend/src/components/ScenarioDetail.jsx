@@ -4,7 +4,7 @@ import StatsStrip from './StatsStrip'
 import CategoryCard from './CategoryCard'
 import DonutChart from './DonutChart'
 
-export default function ScenarioDetail({ detail, onReload, onDelete }) {
+export default function ScenarioDetail({ detail, onReload, onDelete, onReview }) {
   const [editName, setEditName] = useState('')
 
   useEffect(() => {
@@ -50,6 +50,7 @@ export default function ScenarioDetail({ detail, onReload, onDelete }) {
           onChange={(e) => setEditName(e.target.value)}
           onBlur={handleNameBlur}
         />
+        <button className="btn-review" onClick={onReview}>📋 Review</button>
         <button className="btn-delete" onClick={handleDelete}>Delete</button>
       </div>
 
